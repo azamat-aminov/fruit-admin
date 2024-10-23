@@ -1,0 +1,18 @@
+{{- if not .Values.multi.namespaced }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-role
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ .Release.Name }}-service-account
+    namespace: {{ .Values.namespace }}
+{{- end }}

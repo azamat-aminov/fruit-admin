@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    app: {{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+data:
+  application.yaml: |-
+    logging:
+      level:
+        org.springframework.cloud.kubernetes: TRACE
+        de.codecentric.boot.admin.discovery.ApplicationDiscoveryListener: DEBUG
+    management:
+      server:
+        port: 8080
+        base-path: /
+      endpoint:
+        health:
+          enabled: true
+          show-details: always
+          probes:
+            enabled: true
+    spring:
+      application:
+        name: admin-server
+      boot:
+        admin:
+          context-path: '/{{ .Values.app.context }}'
+          ui:
+            title: '{{ .Values.ui.title }}'
+            brand: '{{ .Values.ui.title }}'
+      cloud:
+        kubernetes:
+          discovery:
+          # useful when services being discovered have health probes exposed via other management port named in k8s deployment and service: probes
+            primary-port-name: probes
+            all-namespaces: {{ .Values.multi.namespaced }}
+            service-labels:
+{{ toYaml .Values.app.serviceLabelNameValue | indent 14 }}
+            catalog-services-watch:
+              enabled: true
+              catalogServicesWatchDelay: 10000
